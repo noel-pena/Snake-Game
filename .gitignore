@@ -1,0 +1,9 @@
+# Ignore the virtual environment directory
+env/
+
+# Ignore other files and directories
+*.pyc
+__pycache__/
+.idea/
+.vscode/
+.DS_Store
