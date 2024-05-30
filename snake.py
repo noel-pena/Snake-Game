@@ -27,9 +27,11 @@ class SNAKE:
         self.crunch_sound = pygame.mixer.Sound('sound/crunch.wav')
         
         self.head = self.head_right
+        self.tail = self.tail_right
 
     def draw_snake(self):
         self.update_head_graphics()
+        self.update_tail_graphics()
         
         for index, block in enumerate(self.body):
             x_pos = block.x * cell_size
@@ -37,9 +39,25 @@ class SNAKE:
             snake_rect = pygame.Rect(x_pos, y_pos, cell_size, cell_size)
             if index == 0:
                 screen.blit(self.head, snake_rect)
+            elif index == len(self.body) - 1:
+                screen.blit(self.tail, snake_rect)
             else:
-                pygame.draw.rect(screen, (150, 100, 100), snake_rect)
-                
+                previous_block = self.body[index + 1] - block
+                next_block = self.body[index - 1] - block
+                if previous_block.x == next_block.x:
+                    screen.blit(self.body_vertical, snake_rect)
+                elif previous_block.y == next_block.y:
+                    screen.blit(self.body_horizontal, snake_rect)
+                else:
+                    if previous_block.x == -1 and next_block.y == -1 or previous_block.y == -1 and next_block.x == -1:
+                        screen.blit(self.body_tl, snake_rect)
+                    elif previous_block.x == -1 and next_block.y == 1 or previous_block.y == 1 and next_block.x == -1:
+                        screen.blit(self.body_bl, snake_rect)
+                    elif previous_block.x == 1 and next_block.y == -1 or previous_block.y == -1 and next_block.x == 1:
+                        screen.blit(self.body_tr, snake_rect)
+                    elif previous_block.x == 1 and next_block.y == 1 or previous_block.y == 1 and next_block.x == 1:
+                        screen.blit(self.body_br, snake_rect)
+
     def update_head_graphics(self):
         head_relation = self.body[1] - self.body[0]
         if head_relation == Vector2(1,0): self.head = self.head_left
@@ -47,6 +65,13 @@ class SNAKE:
         elif head_relation == Vector2(0,1): self.head = self.head_up
         elif head_relation == Vector2(0,-1): self.head = self.head_down
 
+    def update_tail_graphics(self):
+        tail_relation = self.body[-2] - self.body[-1]
+        if tail_relation == Vector2(1,0): self.tail = self.tail_left
+        elif tail_relation == Vector2(-1,0): self.tail = self.tail_right
+        elif tail_relation == Vector2(0,1): self.tail = self.tail_up
+        elif tail_relation == Vector2(0,-1): self.tail = self.tail_down
+    
     def move_snake(self):
         if self.new_block:
             body_copy = self.body[:]
@@ -89,6 +114,7 @@ class MAIN:
         self.check_fail()
         
     def draw_elements(self):
+        self.draw_grass()
         self.fruit.draw_fruit()
         self.snake.draw_snake()
         
@@ -108,6 +134,20 @@ class MAIN:
     def game_over(self):
         pygame.quit()
         sys.exit()
+        
+    def draw_grass(self):
+        grass_color = (167,209,61)
+        for row in range(cell_number):
+            if row % 2 == 0:
+                for col in range(cell_number):
+                    if col % 2 == 0:
+                        grass_rect = pygame.Rect(col * cell_size, row * cell_size, cell_size, cell_size)
+                        pygame.draw.rect(screen, grass_color, grass_rect)
+            else:
+                for col in range(cell_number):
+                    if col % 2 != 0:
+                        grass_rect = pygame.Rect(col * cell_size, row * cell_size, cell_size, cell_size)
+                        pygame.draw.rect(screen, grass_color, grass_rect)
 
 pygame.init()
 cell_size = 40
